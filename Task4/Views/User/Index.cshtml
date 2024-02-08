@@ -1,0 +1,72 @@
+﻿@model UserModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<form asp-action="Delete" method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <input id="select-all" type="checkbox" , asp-for="@Model.SelectAll" />
+                </th>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Email
+                </th>
+                <th>
+                    Last login
+                </th>
+                <th>
+                    Status
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Users.Count(); i++)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" asp-for="@Model.Users[i].Selected" />
+                        <input type="hidden" asp-for="@Model.Users[i].Id" />
+                        <input type="hidden" , asp-for="@Model.Users[i].ConcurrencyStamp" />
+                    </td>
+                    <td>
+                        @Model.Users[i].UserName
+                    </td>
+                    <td>
+                        @Model.Users[i].Email
+                    </td>
+                    <td>
+                        @Model.Users[i].RegistrationTime
+                    </td>
+                    <td>
+                        @Model.Users[i].IsActive
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button type="submit">Delete Selected</button>
+</form>
+
+@section scripts
+    {
+    <script>
+        $(function () {
+            var selectAll = $('#select-all');
+            var usersCheckboxes = $("input:checkbox[name^='Users']");
+
+            selectAll.change(function () {
+                usersCheckboxes.prop('checked', $(this).prop('checked'));
+            })
+
+            usersCheckboxes.change(function () {
+                var allChecked = usersCheckboxes.length === usersCheckboxes.filter(":checked").length;
+                selectAll.prop("checked", allChecked);
+            })
+        });
+    </script>
+}

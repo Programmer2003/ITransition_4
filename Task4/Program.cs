@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Task4.Data;
 using Task4.Models;
 
@@ -8,19 +10,38 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext>(options => { 
+    options.UseSqlServer(connectionString);
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddDefaultIdentity<UserProfile>(options => {
+builder.Services.AddDefaultIdentity<UserProfile>(options =>
+{
     options.Password.RequiredLength = 1;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireDigit = false;
-}
-)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+}).AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddControllersWithViews();
+
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    // enables immediate logout, after updating the user's security stamp.
+    options.ValidationInterval = TimeSpan.Zero;
+});
+
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.AddPolicy("ActiveUserPolicy", policyBuilder =>
+//    {
+//        policyBuilder.RequireAuthenticatedUser();
+//        policyBuilder.AddRequirements(new ActiveUserRequirement());
+//    });
+//});
+//builder.Services.AddSingleton<IAuthorizationHandler, ActiveUserRequirementHandler>();
+
 
 
 var app = builder.Build();

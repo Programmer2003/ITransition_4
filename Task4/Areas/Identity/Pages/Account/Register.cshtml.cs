@@ -117,6 +117,8 @@ namespace Task4.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                user.LastVisit = DateTime.Now;
+                user.RegistrationTime = DateTime.Now;
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
