@@ -3,12 +3,15 @@
     ViewData["Title"] = "Index";
 }
 
-<form asp-action="Delete" method="post">
-    <table class="table">
-        <thead>
+<form asp-action="Action" method="post">
+    <button type="submit" class="btn btn-outline-primary" name="action" value="Block">Block <i class="fa-solid fa-lock"></i></button>
+    <button type="submit" class="btn btn-outline-primary" name="action" value="Unblock"><i class="fa-solid fa-unlock"></i></button>
+    <button type="submit" class="btn btn-danger" name="action" value="Delete"><i class="fa-solid fa-trash-can"></i></button>
+    <table class="table table-striped">
+        <thead class="table-secondary">
             <tr>
                 <th>
-                    <input id="select-all" type="checkbox" , asp-for="@Model.SelectAll" />
+                    <input id="select-all" type="checkbox" asp-for="@Model.SelectAll" />
                 </th>
                 <th>
                     Name
@@ -34,22 +37,22 @@
                         <input type="hidden" , asp-for="@Model.Users[i].ConcurrencyStamp" />
                     </td>
                     <td>
-                        @Model.Users[i].UserName
+                        @Model.Users[i].Name
                     </td>
                     <td>
                         @Model.Users[i].Email
                     </td>
                     <td>
-                        @Model.Users[i].RegistrationTime
+                        @Model.Users[i].LastVisit
                     </td>
                     <td>
-                        @Model.Users[i].IsActive
+                        @(Model.Users[i].IsActive ? "Active" : "Blocked")
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-    <button type="submit">Delete Selected</button>
+    
 </form>
 
 @section scripts

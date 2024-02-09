@@ -21,10 +21,15 @@ namespace Task4.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly SignInManager<UserProfile> _signInManager;
+        private readonly UserManager<UserProfile> _userManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<UserProfile> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(
+            UserManager<UserProfile> userManager, 
+            SignInManager<UserProfile> signInManager, 
+            ILogger<LoginModel> logger)
         {
+            _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
         }
@@ -116,6 +121,9 @@ namespace Task4.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    user.LastVisit = DateTime.Now;
+                    await _userManager.UpdateAsync(user); 
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

@@ -10,6 +10,7 @@ using Task4.Models;
 namespace Task4.Controllers
 {
     [Authorize]
+    [Authorize(Policy = "ActiveUserPolicy")]
     public class UserController : Controller
     {
         // GET: UserController
@@ -30,79 +31,60 @@ namespace Task4.Controllers
             return View(viewModel);
         }
 
-        // GET: UserController/Details/5
-        public ActionResult Details(int id)
+        public void Block(List<UserProfile> users, bool block = false)
         {
-            return View();
+            foreach (var user in users)
+            {
+                var updated = _context.Find<UserProfile>(user.Id);
+                if (updated != null)
+                {
+                    updated.IsActive = block;
+                    _context.Update(updated);
+                }
+            }
+
+            _context.SaveChanges();
         }
 
-        // GET: UserController/Create
-        public ActionResult Create()
+        public void Delete(List<UserProfile> users)
         {
-            return View();
+            _context.RemoveRange(users);
+
+            _context.SaveChanges();
         }
 
-        public async Task<IActionResult> Delete(UserModel viewModel)
+
+        public IActionResult Action(UserModel viewModel, [FromForm] string action)
         {
             var selected = viewModel.Users;
             if (!viewModel.SelectAll)
             {
                 selected = viewModel.Users.Where(u => u.Selected).ToList();
             }
-
-            foreach (var user in selected)
+            switch (action)
             {
-                _context.Remove(user);
+                case "Block":
+                    Block(selected);
+                    break;
+                case "Unblock":
+                    Block(selected, true);
+                    break;
+                case "Delete":
+                    Delete(selected);
+                    break;
+                default:
+                    break;
             }
-
-            _context.SaveChanges();
-
 
             return RedirectToAction(nameof(Index));
-        }
-
-        // POST: UserController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: UserController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: UserController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
         }
     }
 
     public class UserIndexModel : PageModel
     {
-        private readonly Task4.Data.ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public UserIndexModel(Task4.Data.ApplicationDbContext context)
+        public UserIndexModel(ApplicationDbContext context)
         {
             _context = context;
         }
