@@ -48,7 +48,14 @@ namespace Task4.Controllers
 
         public void Delete(List<UserProfile> users)
         {
-            _context.RemoveRange(users);
+            foreach (var user in users)
+            {
+                var delete = _context.Find<UserProfile>(user.Id);
+                if (delete != null)
+                {
+                    _context.Remove(delete);
+                }
+            }
 
             _context.SaveChanges();
         }
